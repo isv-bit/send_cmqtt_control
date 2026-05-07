@@ -5,105 +5,116 @@ import json
 import platform
 
 # =========================
-# CONFIGURACIÓN DE PÁGINA
+# CONFIGURACIÓN
 # =========================
 st.set_page_config(
-    page_title="MQTT Control Dashboard",
+    page_title="MQTT Control",
     page_icon="📡",
     layout="wide"
 )
 
 # =========================
-# ESTILO GENERAL (MÁS COLORIDO)
+# ESTILO MÁS COLORIDO Y LIMPIO
 # =========================
 st.markdown("""
     <style>
 
-    /* FONDO GENERAL */
+    /* FONDO GENERAL MUY COLORIDO */
     .main {
-        background: linear-gradient(120deg, #00c6ff, #0072ff, #6a11cb);
+        background: linear-gradient(135deg, #ff416c, #ff4b2b, #1fddff, #4b6cb7);
+        background-size: 400% 400%;
+        animation: gradientMove 10s ease infinite;
     }
 
-    /* TÍTULO */
+    @keyframes gradientMove {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+    }
+
+    /* TITULO */
     h1 {
         color: white;
         text-align: center;
-        font-size: 44px;
+        font-size: 46px;
         font-weight: 900;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.4);
     }
 
+    /* SUBTITULO */
     .sub {
         text-align: center;
         color: white;
         font-size: 16px;
-        margin-bottom: 25px;
-    }
-
-    /* TARJETAS */
-    .card {
-        background-color: white;
-        padding: 20px;
-        border-radius: 18px;
-        box-shadow: 0px 10px 25px rgba(0,0,0,0.25);
         margin-bottom: 20px;
     }
 
-    /* BOTONES */
+    /* QUITAR TODO TIPO DE "CAJAS" */
+    div.block-container {
+        padding-top: 1rem;
+    }
+
+    /* BOTONES MÁS MODERNOS Y COLORIDOS */
     .stButton>button {
         width: 100%;
-        border-radius: 12px;
-        height: 55px;
-        font-size: 18px;
+        height: 60px;
+        font-size: 20px;
         font-weight: bold;
+        border-radius: 0px !important;   /* 🔥 sin bordes redondeados */
         border: none;
-        transition: 0.3s;
+        transition: 0.2s;
+        color: white;
     }
 
     .stButton>button:hover {
-        transform: scale(1.03);
+        transform: scale(1.02);
+        filter: brightness(1.1);
     }
 
-    /* ON BUTTON (verde) */
-    div[data-testid="stButton"] button:has(span:contains("ON")) {
-        background-color: #2ecc71 !important;
-        color: white !important;
+    /* BOTÓN ON */
+    button[kind="primary"] {
+        background: linear-gradient(90deg, #00c853, #64dd17);
     }
 
-    /* OFF BUTTON (rojo) */
-    div[data-testid="stButton"] button:has(span:contains("OFF")) {
-        background-color: #e74c3c !important;
-        color: white !important;
+    /* BOTÓN OFF */
+    button[kind="secondary"] {
+        background: linear-gradient(90deg, #ff1744, #d50000);
     }
 
-    /* =========================
-       SLIDER SIN BARRAS BLANCAS
-    ========================== */
+    /* SLIDER MÁS LIMPIO Y COLORIDO */
     [data-baseweb="slider"] {
-        background: transparent !important;
+        padding: 10px 0;
     }
 
     .stSlider > div {
         background: transparent !important;
     }
 
-    /* track del slider */
+    /* línea del slider */
     .stSlider [data-testid="stTickBar"] {
-        background: linear-gradient(90deg, #00c6ff, #0072ff) !important;
+        background: linear-gradient(90deg, #00c6ff, #ff00cc) !important;
     }
 
-    /* línea activa */
-    .stSlider div[role="progressbar"] {
-        background: linear-gradient(90deg, #00c6ff, #0072ff) !important;
+    /* círculo del slider */
+    div[role="slider"] {
+        background: #ffffff !important;
+        border: 3px solid #ff00cc !important;
+    }
+
+    /* texto */
+    p, label {
+        color: white !important;
+        font-weight: 500;
     }
 
     </style>
 """, unsafe_allow_html=True)
 
 # =========================
-# TÍTULO
+# TITULO
 # =========================
 st.title("📡 MQTT Control Dashboard")
-st.markdown('<p class="sub">Sistema IoT con control en tiempo real vía MQTT</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub">Control IoT en tiempo real con estilo vibrante</p>', unsafe_allow_html=True)
 
 st.write("🧠 Versión de Python:", platform.python_version())
 
@@ -113,14 +124,14 @@ act1 = "OFF"
 # =========================
 # MQTT CALLBACKS
 # =========================
-def on_publish(client,userdata,result):
-    print("el dato ha sido publicado")
+def on_publish(client, userdata, result):
+    print("Publicado")
 
 def on_message(client, userdata, message):
     global message_received
-    time.sleep(2)
+    time.sleep(1)
     message_received = str(message.payload.decode("utf-8"))
-    st.write("📩 Mensaje recibido:", message_received)
+    st.write("📩", message_received)
 
 broker = "157.230.214.127"
 port = 1883
@@ -129,15 +140,14 @@ client1 = paho.Client("GIT-HUB")
 client1.on_message = on_message
 
 # =========================
-# CONTROLES PRINCIPALES
+# CONTROL PRINCIPAL
 # =========================
-st.markdown("## ⚙️ Control del sistema")
+st.markdown("## ⚙️ Control")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown("### 🟢 Encender sistema")
+    st.markdown("### 🟢 ENCENDER")
 
     if st.button("ON"):
         act1 = "ON"
@@ -146,13 +156,10 @@ with col1:
         client1.connect(broker, port)
         message = json.dumps({"Act1": act1})
         client1.publish("cmqtt_s", message)
-        st.success("Sistema ENCENDIDO")
-
-    st.markdown('</div>', unsafe_allow_html=True)
+        st.success("ENCENDIDO")
 
 with col2:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown("### 🔴 Apagar sistema")
+    st.markdown("### 🔴 APAGAR")
 
     if st.button("OFF"):
         act1 = "OFF"
@@ -161,26 +168,20 @@ with col2:
         client1.connect(broker, port)
         message = json.dumps({"Act1": act1})
         client1.publish("cmqtt_s", message)
-        st.error("Sistema APAGADO")
-
-    st.markdown('</div>', unsafe_allow_html=True)
+        st.error("APAGADO")
 
 # =========================
 # CONTROL ANALÓGICO
 # =========================
 st.markdown("## 🎚️ Control analógico")
 
-st.markdown('<div class="card">', unsafe_allow_html=True)
+values = st.slider('Selecciona valor', 0.0, 100.0)
+st.write("Valor:", values)
 
-values = st.slider('📊 Selecciona el rango de valores', 0.0, 100.0)
-st.write("Valor seleccionado:", f"**{values}**")
-
-if st.button("📤 Enviar valor analógico"):
+if st.button("📤 ENVIAR"):
     client1 = paho.Client("GIT-HUB")
     client1.on_publish = on_publish
     client1.connect(broker, port)
     message = json.dumps({"Analog": float(values)})
     client1.publish("cmqtt_a", message)
-    st.success("Valor enviado correctamente")
-
-st.markdown('</div>', unsafe_allow_html=True)
+    st.success("Enviado")
