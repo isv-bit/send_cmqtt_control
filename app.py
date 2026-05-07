@@ -14,38 +14,41 @@ st.set_page_config(
 )
 
 # =========================
-# ESTILO MÁS COLORIDO
+# ESTILO GENERAL (MÁS COLORIDO)
 # =========================
 st.markdown("""
     <style>
 
+    /* FONDO GENERAL */
     .main {
-        background: linear-gradient(135deg, #e0f7ff, #fef9ff);
+        background: linear-gradient(120deg, #00c6ff, #0072ff, #6a11cb);
     }
 
+    /* TÍTULO */
     h1 {
-        color: #1f4aff;
+        color: white;
         text-align: center;
-        font-size: 42px;
-        font-weight: 800;
+        font-size: 44px;
+        font-weight: 900;
     }
 
     .sub {
         text-align: center;
-        color: #444;
-        margin-bottom: 25px;
+        color: white;
         font-size: 16px;
+        margin-bottom: 25px;
     }
 
+    /* TARJETAS */
     .card {
         background-color: white;
         padding: 20px;
         border-radius: 18px;
-        box-shadow: 0px 8px 20px rgba(0,0,0,0.08);
+        box-shadow: 0px 10px 25px rgba(0,0,0,0.25);
         margin-bottom: 20px;
-        border-left: 6px solid #1f4aff;
     }
 
+    /* BOTONES */
     .stButton>button {
         width: 100%;
         border-radius: 12px;
@@ -58,18 +61,39 @@ st.markdown("""
 
     .stButton>button:hover {
         transform: scale(1.03);
-        box-shadow: 0px 6px 15px rgba(0,0,0,0.15);
     }
 
-    /* Colores específicos de botones */
-    div[data-testid="stButton"] > button[kind="primary"] {
-        background-color: #2ecc71;
-        color: white;
+    /* ON BUTTON (verde) */
+    div[data-testid="stButton"] button:has(span:contains("ON")) {
+        background-color: #2ecc71 !important;
+        color: white !important;
     }
 
-    div[data-testid="stButton"] > button[kind="secondary"] {
-        background-color: #e74c3c;
-        color: white;
+    /* OFF BUTTON (rojo) */
+    div[data-testid="stButton"] button:has(span:contains("OFF")) {
+        background-color: #e74c3c !important;
+        color: white !important;
+    }
+
+    /* =========================
+       SLIDER SIN BARRAS BLANCAS
+    ========================== */
+    [data-baseweb="slider"] {
+        background: transparent !important;
+    }
+
+    .stSlider > div {
+        background: transparent !important;
+    }
+
+    /* track del slider */
+    .stSlider [data-testid="stTickBar"] {
+        background: linear-gradient(90deg, #00c6ff, #0072ff) !important;
+    }
+
+    /* línea activa */
+    .stSlider div[role="progressbar"] {
+        background: linear-gradient(90deg, #00c6ff, #0072ff) !important;
     }
 
     </style>
@@ -79,7 +103,7 @@ st.markdown("""
 # TÍTULO
 # =========================
 st.title("📡 MQTT Control Dashboard")
-st.markdown('<p class="sub">Sistema de control IoT con comunicación en tiempo real</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub">Sistema IoT con control en tiempo real vía MQTT</p>', unsafe_allow_html=True)
 
 st.write("🧠 Versión de Python:", platform.python_version())
 
@@ -87,9 +111,9 @@ values = 0.0
 act1 = "OFF"
 
 # =========================
-# CALLBACKS MQTT
+# MQTT CALLBACKS
 # =========================
-def on_publish(client, userdata, result):
+def on_publish(client,userdata,result):
     print("el dato ha sido publicado")
 
 def on_message(client, userdata, message):
@@ -105,9 +129,9 @@ client1 = paho.Client("GIT-HUB")
 client1.on_message = on_message
 
 # =========================
-# CONTROLES
+# CONTROLES PRINCIPALES
 # =========================
-st.markdown("## ⚙️ Control principal")
+st.markdown("## ⚙️ Control del sistema")
 
 col1, col2 = st.columns(2)
 
@@ -115,7 +139,7 @@ with col1:
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown("### 🟢 Encender sistema")
 
-    if st.button('ON'):
+    if st.button("ON"):
         act1 = "ON"
         client1 = paho.Client("GIT-HUB")
         client1.on_publish = on_publish
@@ -130,7 +154,7 @@ with col2:
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown("### 🔴 Apagar sistema")
 
-    if st.button('OFF'):
+    if st.button("OFF"):
         act1 = "OFF"
         client1 = paho.Client("GIT-HUB")
         client1.on_publish = on_publish
@@ -151,7 +175,7 @@ st.markdown('<div class="card">', unsafe_allow_html=True)
 values = st.slider('📊 Selecciona el rango de valores', 0.0, 100.0)
 st.write("Valor seleccionado:", f"**{values}**")
 
-if st.button('📤 Enviar valor analógico'):
+if st.button("📤 Enviar valor analógico"):
     client1 = paho.Client("GIT-HUB")
     client1.on_publish = on_publish
     client1.connect(broker, port)
